@@ -1,0 +1,78 @@
+<!-- <h2>My Orders</h2>
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Date</th>
+  </tr>
+  {% for order in orders %}
+  <tr>
+    <td>{{ order.product.name }}</td>
+    <td>{{ order.quantity }}</td>
+    <td>{{ order.created_at }}</td>
+  </tr>
+  {% endfor %}
+</table> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <p>hhv g jh</p>
+</body>
+</html>
+
+<!-- {% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🛒 My Orders</h2>
+
+  <table class="table table-striped table-bordered">
+    <thead class="table-success">
+      <tr>
+        <th>#</th>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ order.product.name }}</td>
+        <td class="d-flex align-items-center">
+          <form method="POST" action="{% url 'decrease_quantity' order.id %}" class="me-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-secondary">−</button>
+          </form>
+
+          {{ order.quantity }}
+
+          <form method="POST" action="{% url 'increase_quantity' order.id %}" class="ms-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
+          </form>
+        </td>
+        <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+        <td>
+          <form method="POST" action="{% url 'delete_order' order.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">
+              <i class="bi bi-x-circle"></i> Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">No orders yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %} -->

@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Farm Market</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: url("{% static 'images/agriculture-bg.jpg' %}") no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .register-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .register-box {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-heading i {
+      font-size: 3rem;
+      color: #2e7d32;
+    }
+
+    .form-heading h2 {
+      margin-top: 10px;
+      font-weight: 700;
+      color: #2e7d32;
+    }
+
+    .form-heading p {
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      color: #333;
+    }
+
+    .input-icon-box {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      padding: 0 10px;
+      transition: 0.3s;
+    }
+
+    .input-icon-box:focus-within {
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 0.15rem rgba(46, 125, 50, 0.25);
+    }
+
+    .input-icon-box i {
+      margin-right: 10px;
+      color: #2e7d32;
+    }
+
+    .input-icon-box input,
+    .input-icon-box select {
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 10px;
+      font-size: 0.95rem;
+      border-radius: 10px;
+    }
+
+    .btn-register {
+      background-color: #2e7d32;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      width: 100%;
+      margin-top: 10px;
+      transition: 0.3s ease-in-out;
+    }
+
+    .btn-register:hover {
+      background-color: #1b5e20;
+      transform: scale(1.03);
+      box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+    }
+
+    .errorlist {
+      color: red;
+      font-size: 0.85rem;
+      list-style: none;
+      padding-left: 0;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+
+    .role-fields {
+      display: none;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 576px) {
+      .register-box {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="register-container">
+  <div class="register-box">
+    <div class="form-heading">
+      <i class="fas fa-leaf"></i>
+      <h2>Create Your Account</h2>
+      <p>Join Farm Market to buy or sell farm products easily.</p>
+    </div>
+
+    <form method="POST" novalidate>
+      {% csrf_token %}
+
+      <!-- User Fields -->
+      {% for field in user_form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="input-icon-box">
+            {% if field.name == 'username' %}
+              <i class="fas fa-user"></i>
+            {% elif field.name == 'email' %}
+              <i class="fas fa-envelope"></i>
+            {% elif field.name == 'password' or field.name == 'confirm_password' %}
+              <i class="fas fa-lock"></i>
+            {% endif %}
+            {{ field }}
+          </div>
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+
+      <!-- Role Selection -->
+      <div class="form-group">
+        <label for="role">Register As</label>
+        <div class="input-icon-box">
+          <i class="fas fa-user-tag"></i>
+          <select name="role" id="role" class="form-select" required>
+            <option value="">Select Role --</option>
+            <option value="farmer">Farmer</option>
+            <option value="buyer">Buyer</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Buyer Fields -->
+      <div id="buyer-fields" class="role-fields">
+        <div class="form-group">
+          <label for="buyer_phone">Phone Number</label>
+          <div class="input-icon-box">
+            <i class="fas fa-phone"></i>
+            <input type="text" name="buyer_phone" id="buyer_phone" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="buyer_address">Address</label>
+          <div class="input-icon-box">
+            <i class="fas fa-map-marker-alt"></i>
+            <input type="text" name="buyer_address" id="buyer_address" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Farmer Fields -->
+      <div id="farmer-fields" class="role-fields">
+        <div class="form-group">
+          <label for="farm_location">Farm Location</label>
+          <div class="input-icon-box">
+            <i class="fas fa-tractor"></i>
+            <input type="text" name="farm_location" id="farm_location" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="experience">Experience (Years)</label>
+          <div class="input-icon-box">
+            <i class="fas fa-briefcase"></i>
+            <input type="number" name="experience" id="experience" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-register">Register</button>
+    </form>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Role Toggle Script -->
+<script>
+  const roleSelect = document.getElementById('role');
+  const buyerFields = document.getElementById('buyer-fields');
+  const farmerFields = document.getElementById('farmer-fields');
+
+  roleSelect.addEventListener('change', function () {
+    if (this.value === 'buyer') {
+      buyerFields.style.display = 'block';
+      farmerFields.style.display = 'none';
+    } else if (this.value === 'farmer') {
+      farmerFields.style.display = 'block';
+      buyerFields.style.display = 'none';
+    } else {
+      buyerFields.style.display = 'none';
+      farmerFields.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

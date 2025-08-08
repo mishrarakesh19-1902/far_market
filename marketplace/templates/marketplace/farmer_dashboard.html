@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Powered Farm Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- ✅ SweetAlert CDN -->
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f9f6;
+      color: #333;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2e8b57;
+      padding: 15px 20px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: #1d5233;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .auth-buttons a {
+      text-decoration: none;
+      color: white;
+      padding: 6px 14px;
+      background: #276b45;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+
+    .auth-buttons a:hover {
+      background: #1d5233;
+    }
+
+    .welcome-text {
+      font-weight: 500;
+    }
+
+    .hero {
+      padding: 80px 30px;
+      text-align: center;
+      background: linear-gradient(to right, #e8f5e9, #ffffff);
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      max-width: 750px;
+      margin: auto;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .cta-btn {
+      margin-top: 30px;
+      padding: 14px 36px;
+      background: #2e8b57;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .cta-btn a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .cta-btn:hover {
+      background: #276b45;
+    }
+
+    .features {
+      padding: 60px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    .card h3 {
+      color: #2e8b57;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .card a {
+      display: inline-block;
+      text-decoration: none;
+      background: #2e8b57;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 0.95rem;
+      transition: 0.3s;
+    }
+
+    .card a:hover {
+      background: #276b45;
+    }
+
+    footer {
+      background: #2e8b57;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      margin-top: 60px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+        display: none;
+        animation: slideDown 0.4s ease-in-out forwards;
+      }
+
+      .nav-links.show {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      nav ul {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .auth-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .cta-btn {
+        padding: 12px 26px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo"><i class="fas fa-leaf"></i> Farm Market</div>
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="nav-links" id="navLinks">
+      <ul>
+        <li><a href="{% url 'farmer_dashboard' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{% url 'upload_product' %}"><i class="fas fa-upload"></i> Register Product</a></li>
+        <li><a href="{% url 'my_products' %}"><i class="fas fa-box"></i> My Products</a></li>
+        <li><a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
+        {% if user.is_authenticated and user.farmer_products.exists %}
+        <li><a href="{% url 'farmer_orders' %}"><i class="fas fa-shopping-basket"></i> My Orders</a></li>
+        {% endif %}
+        
+      </ul>
+      <div class="auth-buttons">
+        {% if user.is_authenticated %}
+          <span class="welcome-text">👋 {{ user.username }}</span>
+          <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+          <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a>
+          <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Empowering Farmers with AI</h1>
+    <p>Our platform connects farmers directly to buyers, provides real-time market insights, and reduces crop wastage using smart AI tools.</p>
+    <button class="cta-btn">
+      <a href="{% url 'product_list' %}">Get Started</a>
+    </button>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="card">
+      <h3>🚜 Direct Selling</h3>
+      <p>Connect directly to buyers using AI-powered marketplace tools and eliminate middlemen.</p>
+      <a href="{% url 'product_list' %}">Explore Now</a>
+    </div>
+    <div class="card">
+      <h3>🌾 Predict Best Crop</h3>
+      <p>Use our AI model to predict the best crop based on soil and climate data.</p>
+      <a href="{% url 'predict_crop' %}">Predict</a>
+    </div>
+    <div class="card">
+      <h3>📈 Predict Crop Yield</h3>
+      <p>Estimate production using past data and weather trends for better planning.</p>
+      <a href="{% url 'yeild_predict' %}">Predict</a>
+    </div>
+    <div class="card">
+      <h3>🧪 Quality Inputs</h3>
+      <p>Buy verified seeds, fertilizers, and other farming inputs from trusted sellers.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Farm Market Platform. Designed to empower India's backbone — our farmers.</p>
+  </footer>
+
+  <!-- Toggle Menu Script -->
+  <script>
+    function toggleMenu() {
+      document.getElementById('navLinks').classList.toggle('show');
+    }
+  </script>
+
+  <!-- SweetAlert Message Popup -->
+  {% if messages %}
+  <script>
+    {% for message in messages %}
+      Swal.fire({
+        icon: 'success',
+        title: "{{ message|escapejs }}",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true
+      });
+    {% endfor %}
+  </script>
+  {% endif %}
+
+</body>
+</html>

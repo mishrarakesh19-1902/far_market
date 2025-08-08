@@ -1,0 +1,179 @@
+<!-- {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Farm Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("{% static 'images/agriculture-bg.jpg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .card {
+            padding: 30px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="card shadow-lg">
+        <h2 class="mb-4 text-center">Login to Farm Market</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100">Login</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{% url 'register' %}">Don't have an account? Register here</a>
+        </div>
+    </div>
+</div>
+</body>
+</html> -->
+
+
+<!-- templates/login.html -->
+<!-- {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Farm Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("{% static 'images/agriculture-bg.jpg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .card {
+            padding: 30px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="card shadow-lg">
+        <h2 class="mb-4 text-center">Login to Farm Market</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100">Login</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{% url 'register' %}">Don't have an account? Register here</a>
+        </div>
+    </div>
+</div>
+</body>
+</html> -->
+
+
+ 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Farm Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("{% static 'images/agriculture-bg.jpg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .card {
+            padding: 30px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="card">
+        <h2 class="mb-4 text-center">Login to Farm Market</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-control" autocomplete="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100 btn-custom">Login</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'register' %}">Don't have an account? Register here</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

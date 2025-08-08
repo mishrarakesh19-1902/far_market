@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #a8edea, #fed6e3);
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(40px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        form p {
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #2ecc71;
+            outline: none;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2ecc71;
+        }
+
+        .result, .inputs {
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result h3 {
+            color: #34495e;
+        }
+
+        .inputs {
+            background: #f0f8f0;
+            border: 1px solid #c8e6c9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .inputs h4 {
+            margin-bottom: 10px;
+            color: #1b5e20;
+        }
+
+        .inputs p {
+            margin: 5px 0;
+        }
+
+        /* Home button styling */
+        .home-button {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .home-button a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .home-button a:hover {
+            background-color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- 🏠 Home Button -->
+        <div class="home-button">
+        {% if user.is_authenticated %}
+        {% if user.userprofile.role == "farmer" %}
+            <a href="{% url 'farmer_dashboard' %}">🏠 Home</a>
+        {% elif user.userprofile.role == "buyer" %}
+            <a href="{% url 'buyer_dashboard' %}">🏠 Home</a>
+        {% else %}
+            <a href="{% url 'home' %}">🏠 Home</a>
+        {% endif %}
+        {% else %}
+            <a href="{% url 'home' %}">🏠 Home</a>
+        {% endif %}
+        </div>
+
+
+        <h2>🌾 Predict Crop Yield</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div style="text-align:center;">
+                <button type="submit">Predict</button>
+            </div>
+        </form>
+
+        {% if entered_data %}
+        <div class="inputs">
+            <h4>Entered Data:</h4>
+            <p>Year: {{ entered_data.year }} | Average Rainfall: {{ entered_data.average_rain_fall_mm_per_year }}</p>
+            <p>Pesticides: {{ entered_data.pesticides_tonnes }} | Average Temperature: {{ entered_data.avg_temp }} | Area: {{ entered_data.area }} | Crop Iteam: {{ entered_data.item }}</p>
+        </div>
+        {% endif %}
+
+        {% if prediction %}
+        <div class="result">
+            <h3>📈 Predicted Yield: {{ prediction|floatformat:2 }} tons/ha</h3>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

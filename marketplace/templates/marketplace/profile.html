@@ -1,0 +1,215 @@
+<!-- {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2e8b57;
+    }
+
+    .profile-info {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      row-gap: 20px;
+      column-gap: 20px;
+    }
+
+    .profile-info div {
+      font-size: 1rem;
+    }
+
+    .profile-label {
+      font-weight: 600;
+      color: #2e8b57;
+    }
+
+    .profile-value {
+      color: #444;
+    }
+
+/* Home button style */
+    .home-button {
+        text-align:left;
+        margin-bottom: 20px;
+    }
+
+    .home-button a {
+        background-color: #2e7d32;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease;
+    }
+
+    .home-button a:hover {
+        background-color: #1b5e20;
+    }
+    .edit-btn {
+      background: #2e8b57;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #276b45;
+    }
+
+    .back-btn {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .back-btn:hover {
+      background: #ccc;
+    }
+
+    @media (max-width: 600px) {
+      .profile-info {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="home-button">
+        {% if user.is_authenticated %}
+        {% if user.userprofile.role == "farmer" %}
+            <a href="{% url 'farmer_dashboard' %}">🏠 Home</a>
+        {% elif user.userprofile.role == "buyer" %}
+            <a href="{% url 'buyer_dashboard' %}">🏠 Home</a>
+        {% else %}
+            <a href="{% url 'home' %}">🏠 Home</a>
+        {% endif %}
+        {% else %}
+            <a href="{% url 'home' %}">🏠 Home</a>
+        {% endif %}
+        </div>
+    <h2><i class="fas fa-user-circle"></i> My Profile</h2>
+    
+    <div class="profile-info">
+      <div class="profile-label">Username:</div>
+      <div class="profile-value">{{ user.username }}</div>
+
+      <div class="profile-label">Email:</div>
+      <div class="profile-value">{{ user.email }}</div>
+
+      <div class="profile-label">Phone:</div>
+      <div class="profile-value">{{ BuyerProfile.phone }}</div>
+
+      <div class="profile-label">Address:</div>
+      <div class="profile-value">{{ BuyerProfile.address }}</div>
+
+      <div class="profile-label">Company Name:</div>
+      <div class="profile-value">
+        {% if profile.company_name %}
+          {{ profile.company_name }}
+        {% else %}
+          <em>Not Provided</em>
+        {% endif %}
+      </div>
+
+      <div class="profile-label">Contact Number:</div>
+      <div class="profile-value">
+        {% if profile.contact_number %}
+          {{ profile.contact_number }}
+        {% else %}
+          <em>Not Provided</em>
+        {% endif %}
+      </div>
+    </div>
+
+    
+  </div>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* ... [Same CSS as you provided] ... */
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="home-button">
+    {% if role == "farmer" %}
+      <a href="{% url 'farmer_dashboard' %}">🏠 Home</a>
+    {% elif role == "buyer" %}
+      <a href="{% url 'buyer_dashboard' %}">🏠 Home</a>
+    {% else %}
+      <a href="{% url 'home' %}">🏠 Home</a>
+    {% endif %}
+  </div>
+
+  <h2><i class="fas fa-user-circle"></i> My Profile</h2>
+  
+  <div class="profile-info">
+    <div class="profile-label">Username:</div>
+    <div class="profile-value">{{ user.username }}</div>
+
+    <div class="profile-label">Email:</div>
+    <div class="profile-value">{{ user.email }}</div>
+
+    {% if role == "buyer" %}
+      <div class="profile-label">Phone:</div>
+      <div class="profile-value">{{ profile.phone }}</div>
+
+      <div class="profile-label">Address:</div>
+      <div class="profile-value">{{ profile.buyer.address }}</div>
+
+    {% elif role == "farmer" %}
+      <div class="profile-label">Farm Location:</div>
+      <div class="profile-value">{{ profile.farm_location }}</div>
+
+      <div class="profile-label">Farm Name:</div>
+      <div class="profile-value">{{ profile.experience }}</div>
+    {% endif %}
+  </div>
+
+  
+</div>
+
+</body>
+</html

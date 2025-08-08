@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f3f7f6;
+      margin: 0;
+      padding: 30px 15px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 30px;
+    }
+
+    .orders-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .order-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .order-title {
+      font-size: 18px;
+      color: #2e7d32;
+      margin-bottom: 8px;
+    }
+
+    .order-info {
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: #444;
+    }
+
+    .order-info span {
+      font-weight: 600;
+      color: #000;
+    }
+
+    .btn-complete {
+      display: inline-block;
+      background-color: #007bff;
+      color: #fff;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 14px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .btn-complete:hover {
+      background-color: #0056b3;
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 13px;
+      border-radius: 20px;
+      color: white;
+    }
+
+    .Pending {
+      background-color: #ff9800;
+    }
+
+    .Completed {
+      background-color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📦 Orders for Your Products</h2>
+
+<div class="orders-container">
+  {% for order in orders %}
+  <div class="order-card">
+    <div class="order-title">🛒 {{ order.product.name }}</div>
+
+    <div class="order-info"><span>Quantity:</span> {{ order.quantity }} {{ order.product.quantity }}</div>
+    <div class="order-info"><span>Total Price:</span> ₹{{ order.total_price }}</div>
+    <div class="order-info"><span>Status:</span> <span class="status-tag {{ order.status }}">{{ order.status }}</span></div>
+
+    <hr style="margin: 10px 0;">
+
+    <div class="order-info"><span>Buyer Name:</span> {{ order.full_name }}</div>
+    <div class="order-info"><span>Email:</span> {{ order.email }}</div>
+    <div class="order-info"><span>Phone:</span> {{ order.phone }}</div>
+    <div class="order-info"><span>Address:</span> {{ order.address }}</div>
+    <div class="order-info"><span>Payment:</span> {{ order.payment_method }}</div>
+
+    <div class="order-info"><span>Ordered On:</span> {{ order.created_at|date:"d M Y, H:i" }}</div>
+
+    {% if order.status == "Pending" %}
+    <form method="POST" action="{% url 'mark_order_completed' order.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-complete">Mark as Completed</button>
+    </form>
+    {% endif %}
+  </div>
+  {% empty %}
+  <p style="text-align: center; font-size: 16px; color: #777;">No orders received yet.</p>
+  {% endfor %}
+</div>
+
+</body>
+</html>
