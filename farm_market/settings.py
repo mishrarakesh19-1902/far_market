@@ -42,7 +42,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['farm-market-project-8.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['farm-market-project-1-j6fq.onrender.com', 'localhost', '127.0.0.1']
 
 
 
