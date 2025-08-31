@@ -98,6 +98,7 @@ pytz==2025.2
 # pywinpty==2.0.14
 PyYAML==6.0.2
 pyzmq==26.2.0
+razorpay==1.4.2
 referencing==0.36.2
 requests==2.32.3
 rfc3339-validator==0.1.4
