@@ -12,3 +12,16 @@ def predict_price(quantity):
 
     predicted_price = model.predict([[quantity]])
     return predicted_price[0]
+
+# marketplace/utils.py
+
+from django.core.mail import send_mail
+from django.conf import settings
+
+def send_welcome_email(to_email, username):
+    subject = "Welcome to Farm Market!"
+    message = f"Hello {username},\n\nYour account has been created successfully.\nThank you for joining Farm Market!"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [to_email]
+
+    send_mail(subject, message, from_email, recipient_list)

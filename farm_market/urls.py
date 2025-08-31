@@ -51,7 +51,7 @@ from marketplace import views
 from marketplace.views import contact_view
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.auth import views as auth_views 
 
 
 urlpatterns = [
@@ -85,7 +85,7 @@ urlpatterns = [
     # urls.py
     path('delete-product/<int:product_id>/', views.delete_product, name='delete_product'),
 
-    # Cart & Order
+    # Cart & Order 
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart, name='cart'),
     path('cart/delete/<int:item_id>/', views.delete_cart_item, name='delete_cart_item'),
@@ -97,12 +97,31 @@ urlpatterns = [
     # Orders Views
     path('my_orders/', views.my_orders, name='my_orders'),
     path('farmer_orders/', views.farmer_orders, name='farmer_orders'),
-
+    # path('checkout-payment/', views.checkout_payment, name='checkout_payment'),
+    # path('payment-success/', views.payment_success, name='payment_success'),
+    # path('payment-failed/', views.payment_failed, name='payment_failed'),        # Failure redirect
+    path('create-razorpay-order/', views.create_razorpay_order, name='create_razorpay_order'),
     # Product Management
     path('farmer/my-products/', views.my_products, name='my_products'),
 
     # ✅ New route for deleting a review
     path('review/delete/<int:review_id>/', views.delete_review, name='delete_review'),
+
+     # ✅ Password Reset URLs
+    path("password_reset/", auth_views.PasswordResetView.as_view(
+        template_name="auth/password_reset.html"), name="password_reset"),
+
+    path("password_reset_done/", auth_views.PasswordResetDoneView.as_view(
+        template_name="auth/password_reset_done.html"), name="password_reset_done"),
+
+    path("reset/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(
+        template_name="auth/password_reset_confirm.html"), name="password_reset_confirm"),
+
+    path("reset_done/", auth_views.PasswordResetCompleteView.as_view(
+        template_name="auth/password_reset_complete.html"), name="password_reset_complete"),
+
+
+
 ]
 
 # Serve media files in development

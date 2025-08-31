@@ -93,6 +93,35 @@
 </head>
 <body>
 
+<nav>
+    <div class="logo"><i class="fas fa-leaf"></i> Farm Market</div>
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="nav-links" id="navLinks">
+      <ul>
+        <li><a href="{% url 'buyer_dashboard' %}"><i class="fas fa-home"></i> Home</a></li>
+        
+        {% if user.is_authenticated and user.is_farmer %}
+        <li><a href="{% url 'upload_product' %}"><i class="fas fa-upload"></i> Register Product</a></li>
+        <li><a href="{% url 'my_products' %}"><i class="fas fa-box"></i> My Products</a></li>
+        {% endif %}
+        <li><a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
+        {% if user.is_authenticated and user.farmer_products.exists %}
+        <li><a href="{% url 'farmer_orders' %}"><i class="fas fa-shopping-basket"></i> My Orders</a></li>
+        {% endif %}
+        <li><a href="{% url 'my_orders' %}"><i class="fas fa-home"></i> Order History</a></li>
+      </ul>
+      <div class="auth-buttons">
+        {% if user.is_authenticated %}
+          <span class="welcome-text">👋 {{ user.username }}</span>
+          <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+          <a href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a>
+          <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>  
+
 <h2>📦 Orders for Your Products</h2>
 
 <div class="orders-container">
@@ -100,7 +129,7 @@
   <div class="order-card">
     <div class="order-title">🛒 {{ order.product.name }}</div>
 
-    <div class="order-info"><span>Quantity:</span> {{ order.quantity }} {{ order.product.quantity }}</div>
+    <div class="order-info"><span>Quantity:</span> {{ order.quantity }} </div>
     <div class="order-info"><span>Total Price:</span> ₹{{ order.total_price }}</div>
     <div class="order-info"><span>Status:</span> <span class="status-tag {{ order.status }}">{{ order.status }}</span></div>
 

@@ -13,12 +13,23 @@ from .models import UserProfile
 from django.conf import settings
 from django import forms
 from django.db.models import Q
+import razorpay 
+import datetime
+# at top of views.py
+import threading
+from .utils import send_welcome_email
 
 import os
 import pickle
 import pandas as pd
 from decimal import Decimal
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.urls import reverse
 
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
+import json
 from .models import (
     Product, ProductImage, Review, CartItem, Order,
     UserProfile, FarmerProfile, BuyerProfile, Crop, CropPrice
@@ -49,6 +60,39 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("Passwords do not match.")
         return cleaned_data
 
+
+def send_welcome_email(user, request=None):
+    """
+    Sends HTML + plain text welcome email to new user.
+    """
+    if not user.email:
+        return False
+
+    context = {
+        "username": user.username,
+        "login_url": request.build_absolute_uri(reverse("login")) if request else reverse("login"),
+        "year": datetime.datetime.now().year,
+    }
+
+    subject = "Welcome to Farm Market — Account Created"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = [user.email]
+
+    html_content = render_to_string("emails/welcome_email.html", context)
+    text_content = render_to_string("emails/welcome_email.txt", context)
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+
+    try:
+        msg.send()
+        return True
+    except Exception as e:
+        print("Email send failed:", e)
+        return False
+
+
+
 def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -62,6 +106,12 @@ def register_view(request):
             user.set_password(raw_password)
             user.save()
             UserProfile.objects.create(user=user, role=role)
+           
+            # ✅ Send welcome email in background
+            threading.Thread(
+                target=send_welcome_email, args=(user, request), daemon=True
+            ).start()
+
             messages.success(request, "Account created successfully. Please login.")
             return redirect('login')
     else:
@@ -223,7 +273,18 @@ def cart(request):
     for item in cart_items:
         item.item_total_price = (item.product.price_per_unit or Decimal('0.00')) * (item.quantity or 0)
     total_price = sum(item.item_total_price for item in cart_items)
-    return render(request, 'direct-selling/cart.html', {'cart_items': cart_items, 'total_price': total_price, 'form': OrderForm()})
+    amount_in_paise = int(total_price * Decimal('100'))
+
+    form = OrderForm()
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'form': form,
+        'RAZORPAY_KEY_ID': getattr(settings, 'RAZORPAY_KEY_ID', ''),
+        'amount_in_paise': amount_in_paise
+    }
+    return render(request, 'direct-selling/cart.html', context)
+    # return render(request, 'direct-selling/cart.html', {'cart_items': cart_items, 'total_price': total_price, 'form': OrderForm()})
 
 @login_required
 @require_POST
@@ -240,27 +301,165 @@ def update_cart(request):
     return redirect('cart')
 
 @login_required
+@csrf_exempt
+def create_razorpay_order(request):
+    """
+    AJAX endpoint to create a Razorpay order. Expects JSON: {"amount": <amount_in_paise>}
+    Returns: order JSON from Razorpay.
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest("Only POST allowed")
+
+    try:
+        data = json.loads(request.body.decode('utf-8') or '{}')
+        amount = int(data.get('amount', 0))
+    except Exception:
+        return HttpResponseBadRequest("Invalid request data")
+
+    if amount <= 0:
+        return HttpResponseBadRequest("Invalid amount")
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    try:
+        razorpay_order = client.order.create({
+            'amount': amount,
+            'currency': 'INR',
+            'payment_capture': 1
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse(razorpay_order)
+
+
+
+
+# @login_required
+# @require_POST
+# def place_order(request):
+#     cart_items = CartItem.objects.filter(user=request.user)
+#     if not cart_items.exists():
+#         messages.error(request, "Your cart is empty.")
+#         return redirect('cart')
+#     form = OrderForm(request.POST)
+#     if form.is_valid():
+#         for item in cart_items:
+#             Order.objects.create(
+#                 buyer=request.user,
+#                 product=item.product,
+#                 quantity=item.quantity,
+#                 total_price=item.product.price_per_unit * item.quantity,
+#                 **form.cleaned_data
+#             )
+#         cart_items.delete()
+#         messages.success(request, "✅ Your order has been placed successfully.")
+#         return redirect('order_success')
+#     messages.error(request, "❌ Please correct the errors in the shipping form.")
+#     return render(request, 'direct-selling/cart.html', {'cart_items': cart_items, 'total_price': sum(item.item_total_price for item in cart_items), 'form': form})
+
+@login_required
 @require_POST
 def place_order(request):
+    """
+    Handles both COD and Online payments.
+    - For COD: create Order entries and clear cart.
+    - For Online: verify Razorpay signature, save payment ids in Order, mark paid, clear cart.
+    """
     cart_items = CartItem.objects.filter(user=request.user)
     if not cart_items.exists():
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
+
     form = OrderForm(request.POST)
-    if form.is_valid():
+    if not form.is_valid():
+        messages.error(request, "Please correct the errors in the form.")
+        # re-render cart with form errors
+        # compute total again
+        total_price = sum((ci.product.price_per_unit or Decimal('0.00')) * ci.quantity for ci in cart_items)
+        return render(request, 'direct-selling/cart.html', {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'form': form,
+            'RAZORPAY_KEY_ID': getattr(settings, 'RAZORPAY_KEY_ID', '')
+        })
+
+    payment_method = form.cleaned_data['payment_method']
+    total_price = sum((ci.product.price_per_unit or Decimal('0.00')) * ci.quantity for ci in cart_items)
+
+    if payment_method == 'cod':
+        # create an Order per item (you can change to aggregated order if you prefer)
         for item in cart_items:
             Order.objects.create(
                 buyer=request.user,
                 product=item.product,
                 quantity=item.quantity,
+                address=form.cleaned_data['address'],
+                full_name=form.cleaned_data['full_name'],
+                email=form.cleaned_data['email'],
+                phone=form.cleaned_data['phone'],
+                payment_method='cod',
                 total_price=item.product.price_per_unit * item.quantity,
-                **form.cleaned_data
+                status='Pending',
+                payment_status='Pending'
             )
         cart_items.delete()
-        messages.success(request, "✅ Your order has been placed successfully.")
-        return redirect('order_success')
-    messages.error(request, "❌ Please correct the errors in the shipping form.")
-    return render(request, 'direct-selling/cart.html', {'cart_items': cart_items, 'total_price': sum(item.item_total_price for item in cart_items), 'form': form})
+        messages.success(request, "✅ Order placed successfully (Cash on Delivery).")
+        return redirect('my_orders')
+
+    elif payment_method == 'online':
+        # verify Razorpay signature posted by client after checkout
+        razorpay_payment_id = request.POST.get('razorpay_payment_id')
+        razorpay_order_id = request.POST.get('razorpay_order_id')
+        razorpay_signature = request.POST.get('razorpay_signature')
+
+        if not (razorpay_payment_id and razorpay_order_id and razorpay_signature):
+            messages.error(request, "Missing payment details. Please try again.")
+            return redirect('cart')
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        }
+
+        try:
+            client.utility.verify_payment_signature(params_dict)
+        except razorpay.errors.SignatureVerificationError:
+            messages.error(request, "Payment verification failed. Please contact support.")
+            return redirect('cart')
+        except Exception:
+            messages.error(request, "Payment verification failed. Please contact support.")
+            return redirect('cart')
+
+        # signature verified — save Orders with payment info
+        for item in cart_items:
+            Order.objects.create(
+                buyer=request.user,
+                product=item.product,
+                quantity=item.quantity,
+                address=form.cleaned_data['address'],
+                full_name=form.cleaned_data['full_name'],
+                email=form.cleaned_data['email'],
+                phone=form.cleaned_data['phone'],
+                payment_method='online',
+                total_price=item.product.price_per_unit * item.quantity,
+                status='Pending',
+                payment_status='Paid',
+                razorpay_order_id=razorpay_order_id,
+                razorpay_payment_id=razorpay_payment_id,
+                razorpay_signature=razorpay_signature
+            )
+        cart_items.delete()
+        messages.success(request, "✅ Payment successful and order placed.")
+        return redirect('my_orders')
+
+    # fallback
+    messages.error(request, "Unknown payment method.")
+    return redirect('cart')
+
+
+
 
 @login_required
 def delete_cart_item(request, item_id):
@@ -280,6 +479,84 @@ def my_orders(request):
 def farmer_orders(request):
     orders = Order.objects.filter(product__seller=request.user).order_by('-created_at')
     return render(request, 'direct-selling/farmer_orders.html', {'orders': orders})
+
+
+# # ================== RAZORPAY PAYMENT ==================
+# @login_required
+# def checkout_payment(request):
+#     """
+#     Buyer checkout page with Razorpay payment integration
+#     """
+#     if UserProfile.objects.get(user=request.user).role != 'buyer':
+#         messages.error(request, "Only buyers can checkout.")
+#         return redirect('home')
+
+#     cart_items = CartItem.objects.filter(user=request.user)
+#     if not cart_items.exists():
+#         messages.error(request, "Your cart is empty.")
+#         return redirect('cart')
+
+#     # Calculate total price
+#     total_amount = sum(
+#         (item.product.price_per_unit or Decimal('0.00')) * (item.quantity or 0)
+#         for item in cart_items
+#     )
+#     amount_in_paise = int(total_amount * 100)
+
+#     # Create Razorpay order
+#     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+#     payment_order = client.order.create({
+#         "amount": amount_in_paise,
+#         "currency": "INR",
+#         "payment_capture": 1
+#     })
+
+#     context = {
+#         "cart_items": cart_items,
+#         "total_amount": total_amount,
+#         "amount_in_paise": amount_in_paise,
+#         "api_key": settings.RAZORPAY_KEY_ID,
+#         "order_id": payment_order["id"]
+#     }
+#     return render(request, "direct-selling/checkout_payment.html", context)
+
+
+# @require_POST
+# @login_required
+# def payment_success(request):
+#     """
+#     Handle payment success callback from Razorpay
+#     """
+#     params_dict = {
+#         'razorpay_order_id': request.POST.get('razorpay_order_id'),
+#         'razorpay_payment_id': request.POST.get('razorpay_payment_id'),
+#         'razorpay_signature': request.POST.get('razorpay_signature')
+#     }
+
+#     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+#     try:
+#         # Verify signature to ensure payment is authentic
+#         client.utility.verify_payment_signature(params_dict)
+#     except razorpay.errors.SignatureVerificationError:
+#         messages.error(request, "Payment verification failed. Please contact support.")
+#         return redirect('cart')
+
+    # Save the order in DB
+    cart_items = CartItem.objects.filter(user=request.user)
+    for item in cart_items:
+        Order.objects.create(
+            buyer=request.user,
+            product=item.product,
+            quantity=item.quantity,
+            total_price=item.product.price_per_unit * item.quantity,
+            shipping_address="Payment done via Razorpay"
+        )
+    cart_items.delete()
+
+    messages.success(request, "✅ Payment successful! Your order has been placed.")
+    return redirect('my_orders')
+
 
 @login_required
 @require_POST

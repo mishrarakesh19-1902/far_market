@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+</head>
+<body>
+   <h2>Checkout</h2>
+<ul>
+    {% for item in cart_items %}
+        <li>{{ item.product.name }} × {{ item.quantity }} — ₹{{ item.product.price_per_unit }}</li>
+    {% endfor %}
+</ul>
+<h3>Total: ₹{{ total_amount }}</h3>
+
+<button id="pay-btn">Pay Now</button>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ api_key }}",
+        "amount": "{{ amount_in_paise }}",
+        "currency": "INR",
+        "name": "Farm Market",
+        "description": "Purchase Payment",
+        "order_id": "{{ order_id }}",
+        "handler": function (response) {
+            // Send payment data to Django for verification
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'payment_success' %}";
+
+            var csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            form.appendChild(csrfToken);
+
+            var orderInput = document.createElement('input');
+            orderInput.type = 'hidden';
+            orderInput.name = 'razorpay_order_id';
+            orderInput.value = response.razorpay_order_id;
+            form.appendChild(orderInput);
+
+            var paymentInput = document.createElement('input');
+            paymentInput.type = 'hidden';
+            paymentInput.name = 'razorpay_payment_id';
+            paymentInput.value = response.razorpay_payment_id;
+            form.appendChild(paymentInput);
+
+            var signatureInput = document.createElement('input');
+            signatureInput.type = 'hidden';
+            signatureInput.name = 'razorpay_signature';
+            signatureInput.value = response.razorpay_signature;
+            form.appendChild(signatureInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    document.getElementById('pay-btn').onclick = function(e) {
+        var rzp = new Razorpay(options);
+        rzp.open();
+        e.preventDefault();
+    }
+</script>
+
+</body>
+</html>

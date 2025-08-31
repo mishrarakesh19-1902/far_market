@@ -252,7 +252,18 @@
     <div class="nav-links" id="navLinks">
       <ul>
         
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        {% if user.is_authenticated %}
+            {% if user.userprofile.role == "farmer" %}
+                <li><a href="{% url 'farmer_dashboard' %}" class="home-btn">🏠 Home</a></li>
+            {% elif user.userprofile.role == "buyer" %}
+                <li><a href="{% url 'buyer_dashboard' %}" class="home-btn">🏠 Home</a></li>
+            {% else %}
+                <li><a href="{% url 'home' %}" class="home-btn">🏠 Home</a></li>
+            {% endif %}
+        {% else %}
+            <li><a href="{% url 'home' %}" class="home-btn">🏠 Home</a></li>
+        {% endif %}
+        
         {% if user.is_authenticated and user.is_farmer %}
         <li><a href="{% url 'upload_product' %}"><i class="fas fa-upload"></i> Register Product</a></li>
         <li><a href="{% url 'my_products' %}"><i class="fas fa-box"></i> My Products</a></li>
@@ -261,7 +272,7 @@
         {% if user.is_authenticated and user.farmer_products.exists %}
         <li><a href="{% url 'farmer_orders' %}"><i class="fas fa-shopping-basket"></i> My Orders</a></li>
         {% endif %}
-        
+        <li><a href="{% url 'my_orders' %}"><i class="fas fa-home"></i> Order History</a></li>
       </ul>
       <div class="auth-buttons">
         {% if user.is_authenticated %}

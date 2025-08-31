@@ -105,11 +105,8 @@ class ProductForm(forms.ModelForm):
 
 # ✅ Order Form
 PAYMENT_CHOICES = [
-    ('COD', 'Cash on Delivery'),
-    ('Paytm', 'Paytm'),
-    ('PhonePe', 'PhonePe'),
-    ('NetBanking', 'Net Banking'),
-    ('Card', 'Credit/Debit Card'),
+    ('cod', 'Cash on Delivery'),
+    ('online', 'Online Payment'),
 ]
 
 class OrderForm(forms.ModelForm):

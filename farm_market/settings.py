@@ -40,7 +40,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['farm-market-project-1-j6fq.onrender.com', 'localhost', '127.0.0.1']
 
@@ -96,6 +96,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'farm_market.wsgi.application'
 
+RAZORPAY_KEY_ID = "rzp_test_hIUSvUlvd9RGZ6"
+RAZORPAY_KEY_SECRET = "o8Q8wb7O62duqEadlBrj1wjj"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -144,6 +146,31 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+
+# settings.py
+
+# 📧 Gmail SMTP settings from .env
+EMAIL_CONFIG = {
+    "EMAIL_BACKEND": os.getenv("EMAIL_BACKEND"),
+    "EMAIL_HOST": os.getenv("EMAIL_HOST"),
+    "EMAIL_PORT": int(os.getenv("EMAIL_PORT", 587)),  # convert string → int
+    "EMAIL_USE_TLS": os.getenv("EMAIL_USE_TLS") == "True",
+    "EMAIL_HOST_USER": os.getenv("EMAIL_HOST_USER"),
+    "EMAIL_HOST_PASSWORD": os.getenv("EMAIL_HOST_PASSWORD"),
+    "DEFAULT_FROM_EMAIL": os.getenv("DEFAULT_FROM_EMAIL"),
+}
+
+# Apply values to Django settings
+EMAIL_BACKEND = EMAIL_CONFIG["EMAIL_BACKEND"]
+EMAIL_HOST = EMAIL_CONFIG["EMAIL_HOST"]
+EMAIL_PORT = EMAIL_CONFIG["EMAIL_PORT"]
+EMAIL_USE_TLS = EMAIL_CONFIG["EMAIL_USE_TLS"]
+EMAIL_HOST_USER = EMAIL_CONFIG["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = EMAIL_CONFIG["EMAIL_HOST_PASSWORD"]
+DEFAULT_FROM_EMAIL = EMAIL_CONFIG["DEFAULT_FROM_EMAIL"]
+
 
 
 

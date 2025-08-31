@@ -251,14 +251,25 @@
     <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="nav-links" id="navLinks">
       <ul>
-        <li><a href="{% url 'farmer_dashboard' %}"><i class="fas fa-home"></i> Home</a></li>
+        {% if user.is_authenticated %}
+            {% if user.userprofile.role == "farmer" %}
+                <li><a href="{% url 'farmer_dashboard' %}"><i class="fas fa-home"></i> Home</a></li>
+            {% elif user.userprofile.role == "buyer" %}
+                <li><a href="{% url 'buyer_dashboard' %}"><i class="fas fa-home"></i> Home</a></li>
+            {% else %}
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+            {% endif %}
+        {% else %}
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        {% endif %}
+        
         <li><a href="{% url 'upload_product' %}"><i class="fas fa-upload"></i> Register Product</a></li>
         <li><a href="{% url 'my_products' %}"><i class="fas fa-box"></i> My Products</a></li>
         <li><a href="{% url 'contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
         {% if user.is_authenticated and user.farmer_products.exists %}
         <li><a href="{% url 'farmer_orders' %}"><i class="fas fa-shopping-basket"></i> My Orders</a></li>
         {% endif %}
-        
+        <li><a href="{% url 'my_orders' %}"><i class="fa-solid fa-box-open"></i> Order History</a></li>
       </ul>
       <div class="auth-buttons">
         {% if user.is_authenticated %}
